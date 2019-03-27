@@ -34,22 +34,42 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    try {
-        const post = await Posts.insert(req.body);
-        console.log(post);
-        if(post){
-            res.status(201).json(post);
-        } else {
-            res
-                .status(404)
-                .json({errorMessage: "Please provide title and contents for the post." })
+    const post = req.body;
+    console.log(post);
+    if (post.title && post.contents){
+        try {
+        const {id} = await Posts.insert(post);
+        const newPost = await Posts.findById(id).first();
+            res.status(201).json(newPost);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({
+                message: `Error creating post ${error}`
+            })
         }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            message: `Error creating post ${error}`
-        })
+    } else {
+        res.status(400).json({
+            errorMessage: "Please provide title and contents for the post."
+        });
     }
+    // try {
+    //     const post = await Posts.insert(req.body);
+    //     console.log(post);
+    //     if(post.title && post.contents){
+    //         res.status(201).json(post);
+    //     } else {
+    //         res
+    //             .status(404)
+    //             .json({errorMessage: "Please provide title and contents for the post." })
+    //     }
+    // } catch (error) {
+    //     console.log(error);
+    //     res.status(500).json({
+    //         message: `Error creating post ${error}`
+    //     })
+    // }
+    
+    
 });
 
 router.put('/:id', async (req, res) => {
